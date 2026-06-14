@@ -1,0 +1,17 @@
+# heavy / regenerable
+node_modules/
+**/target/
+*.ptau
+*.zkey
+*.wtns
+*.wasm
+*.r1cs
+*.sym
+*_js/
+# separate upstream clones (their own repos)
+ref-ultrahonk/
+ref-risc0/
+ref-bn254/
+ref-soroban-examples/
+ref-elgamal/
+# keep: circuits/, contract/src, *.circom, vk*.json, proof*.json, public*.json, input*.json, *.sh, *.md, Dockerfile.prover
