@@ -37,6 +37,13 @@ impl SlippayZkVerifier {
     ) -> bool {
         let bn = env.crypto().bn254();
 
+        // SOUNDNESS: the number of public inputs MUST match the verification key.
+        // Without this, extra IC points are silently ignored and a prover could
+        // omit public inputs (e.g. the regulator key or a cap) and still verify.
+        if ic.len() != pubs.len() + 1 {
+            return false;
+        }
+
         // vk_x = IC[0] + sum_i pubs[i] * IC[i+1]
         let mut vk_x = Bn254G1Affine::from_bytes(ic.get(0).unwrap());
         let n = pubs.len();
