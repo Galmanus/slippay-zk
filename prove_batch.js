@@ -52,13 +52,9 @@ const toCents = (usd) => {
 // so the circuit's exact-equality allowlist check holds.
 const idToField = (s) => (BigInt("0x" + crypto.createHash("sha256").update(String(s)).digest("hex")) % R);
 
-async function main() {
-  const [batchPath, outDirArg] = process.argv.slice(2);
-  if (!batchPath) { console.error("usage: node prove_batch.js <batch.json> [out_dir]"); process.exit(1); }
-  const outDir = path.resolve(outDirArg || path.join(ROOT, "build_real"));
+// Core: real batch -> proof + offchain verify + soroban args. Returns a summary.
+async function proveBatch(batch, outDir) {
   fs.mkdirSync(outDir, { recursive: true });
-
-  const batch = JSON.parse(fs.readFileSync(batchPath, "utf8"));
   if (!Array.isArray(batch.payments) || batch.payments.length === 0) throw new Error("batch.payments empty");
   if (batch.payments.length > N) throw new Error(`batch has ${batch.payments.length} payments; circuit caps at ${N}`);
   if (!batch.allowedRecipients?.length || batch.allowedRecipients.length > M)
@@ -114,19 +110,33 @@ async function main() {
   fs.writeFileSync(path.join(outDir, "invoke_args.json"), JSON.stringify(args, null, 2));
 
   const totalUsd = (Number(total) / 100).toFixed(2);
-  console.log(JSON.stringify({
-    payments_real: batch.payments.length,
-    padded_to: N,
-    total_cents: total.toString(),
-    total_usd: totalUsd,
-    perPaymentCap_usd: batch.perPaymentCapUsd,
-    monthlyCap_usd: batch.monthlyCapUsd,
+  // public signals layout (snarkjs): [ok, eph.x, eph.y, encTotal.x, encTotal.y, ...mandate]
+  return {
+    payments_real: batch.payments.length, padded_to: N,
+    total_cents: total.toString(), total_usd: totalUsd,
+    perPaymentCap_usd: batch.perPaymentCapUsd, monthlyCap_usd: batch.monthlyCapUsd,
     distinct_recipients: batch.allowedRecipients.length,
-    offchain_verify: ok,
-    out_dir: outDir,
-    note: "total is ENCRYPTED in the public signals (ElGamal to regulator); amounts+recipients are private",
-  }, null, 2));
-  if (!ok) process.exit(2);
+    offchain_verify: ok, out_dir: outDir,
+    total_ciphertext: { ephemeralKey: publicSignals.slice(1, 3), encryptedTotal: publicSignals.slice(3, 5) },
+    public_signals: publicSignals,
+  };
 }
 
-main().then(() => process.exit(0)).catch((e) => { console.error("ERROR:", e.message); process.exit(1); });
+async function main() {
+  const [batchPath, outDirArg] = process.argv.slice(2);
+  if (!batchPath) { console.error("usage: node prove_batch.js <batch.json> [out_dir]"); process.exit(1); }
+  const outDir = path.resolve(outDirArg || path.join(ROOT, "build_real"));
+  const batch = JSON.parse(fs.readFileSync(batchPath, "utf8"));
+  const summary = await proveBatch(batch, outDir);
+  console.log(JSON.stringify({
+    ...summary,
+    note: "total is ENCRYPTED in the public signals (ElGamal to regulator); amounts+recipients are private",
+  }, null, 2));
+  if (!summary.offchain_verify) process.exit(2);
+}
+
+module.exports = { proveBatch, idToField, toCents };
+
+if (require.main === module) {
+  main().then(() => process.exit(0)).catch((e) => { console.error("ERROR:", e.message); process.exit(1); });
+}

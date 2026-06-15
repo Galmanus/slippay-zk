@@ -90,6 +90,56 @@ Recommended path to enforcing: run the shadow attester for N weeks, confirm
 blocks, *then* gate — and gate at batch-authorization time, asynchronously, with
 a manual-override break-glass.
 
+## Shadow attester (built + run on real data — 2026-06-15)
+
+`attest.js` is the periodic shadow job. It is **separate from** the existing
+ed25519 integrity oracle (`attester/src/oracle.mjs` in the backend) — that one is
+per-charge fail-closed surface detection; this one is a periodic
+**privacy-preserving batch-compliance proof**.
+
+Per merchant with a mandate it: pulls recent settled orders → proves the batch
+obeyed the mandate → simulates the live mainnet verify (no tx) → appends a
+privacy-preserving attestation. Run over the real production snapshot (5
+merchants, 17 orders):
+
+```
+✓ 2b1b2bc2…  8 payments · offchain=true · mainnet(sim)=true · compliant=true
+✓ 828dd793…  5 payments · offchain=true · mainnet(sim)=true · compliant=true
+✗ e43a6ffd…  NOT attested — payment $1000 > perPaymentCap $50  (real violation, fail-closed)
+✓ a0acee25…  1 payment  · compliant=true
+✓ 1e6277bf…  1 payment  · compliant=true
+→ 4/5 compliant
+```
+
+The `e43a6ffd` refusal matters: the attester caught a **real** over-cap charge
+and refused to sign it. The proof is meaningful, not a rubber stamp.
+
+Each attestation records only public, zero-knowledge data: the mandate caps, the
+verify results, and the ElGamal `total_ciphertext` (the real total stays
+encrypted to the regulator). Amounts and recipients are never written.
+
+Two correctness items handled while building:
+- **Fresh ElGamal nonce per attestation.** A fixed nonce makes equal totals
+  produce identical ciphertexts and leaks total *differences*
+  (`encTotal₁ − encTotal₂ = (total₁ − total₂)·G`). Now `crypto.randomBytes` per
+  attestation; verified ephemeral keys are distinct.
+- **No silent truncation.** A merchant with >8 orders is attested on the most
+  recent 8 and the exclusion is logged, not hidden.
+
+Still open (the honest gaps, unchanged): the mandate (`mandates.json`) is a
+stand-in for a *consented* per-merchant config — production must source caps +
+allowlist from a tamper-evident commitment, not a local file or the orders
+themselves. Trusted setup still single-contributor.
+
+### Enabling in prod (your call)
+
+The job is Node + snarkjs + the circom artifacts. To run it as a real service:
+copy this repo (or just `prove_batch.js`, `to_soroban.js`, `attest.js`,
+`build_sd/`) to the box, replace the `/tmp/*.json` snapshots with a read-only
+query of paid orders in the period, schedule it (cron / pm2), and persist
+`attestations.jsonl` to a table + surface it on `app.slippay.cc/zk`. It writes
+nothing to chain and never touches `subscriptions.ts`. One command, your go.
+
 ## Files
 
 - `prove_batch.js` — real batch → proof + offchain verify + soroban args

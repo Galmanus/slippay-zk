@@ -20,3 +20,9 @@ ref-elgamal/
 build_real/input.json
 build_real/*.wtns
 /tmp/real_orders.json
+
+# shadow attester: private witnesses; keep attestations.jsonl + public proofs
+build_attest/*/input.json
+build_attest/*/*.wtns
+/tmp/all_orders.json
+/tmp/all_merchants.json
