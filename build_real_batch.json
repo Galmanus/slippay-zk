@@ -1,0 +1,43 @@
+{
+  "payments": [
+    {
+      "amount_usd": "0.1",
+      "recipient": "GCYEAQWXDR3MXHU364KIFOLSL2FIZL5RYXEKO3QVQ3WTQCWY64BXBRNR"
+    },
+    {
+      "amount_usd": "0.05",
+      "recipient": "GCYEAQWXDR3MXHU364KIFOLSL2FIZL5RYXEKO3QVQ3WTQCWY64BXBRNR"
+    },
+    {
+      "amount_usd": "0.1",
+      "recipient": "GCYEAQWXDR3MXHU364KIFOLSL2FIZL5RYXEKO3QVQ3WTQCWY64BXBRNR"
+    },
+    {
+      "amount_usd": "0.05",
+      "recipient": "GCYEAQWXDR3MXHU364KIFOLSL2FIZL5RYXEKO3QVQ3WTQCWY64BXBRNR"
+    },
+    {
+      "amount_usd": "0.25",
+      "recipient": "GCYEAQWXDR3MXHU364KIFOLSL2FIZL5RYXEKO3QVQ3WTQCWY64BXBRNR"
+    },
+    {
+      "amount_usd": "0.1",
+      "recipient": "GCYEAQWXDR3MXHU364KIFOLSL2FIZL5RYXEKO3QVQ3WTQCWY64BXBRNR"
+    },
+    {
+      "amount_usd": "9.9403579",
+      "recipient": "828dd793-eef7-4b57-80a4-ae768dba67e3"
+    },
+    {
+      "amount_usd": "19.8807157",
+      "recipient": "828dd793-eef7-4b57-80a4-ae768dba67e3"
+    }
+  ],
+  "perPaymentCapUsd": "20.00",
+  "monthlyCapUsd": "40.00",
+  "allowedRecipients": [
+    "GCYEAQWXDR3MXHU364KIFOLSL2FIZL5RYXEKO3QVQ3WTQCWY64BXBRNR",
+    "828dd793-eef7-4b57-80a4-ae768dba67e3"
+  ],
+  "regulatorPrivKey": "987654321"
+}

@@ -15,3 +15,8 @@ ref-bn254/
 ref-soroban-examples/
 ref-elgamal/
 # keep: circuits/, contract/src, *.circom, vk*.json, proof*.json, public*.json, input*.json, *.sh, *.md, Dockerfile.prover
+
+# real-batch private witness (amounts+recipients) — never commit
+build_real/input.json
+build_real/*.wtns
+/tmp/real_orders.json
