@@ -29,10 +29,11 @@ Private inputs: the 8 amounts, the 8 recipients, the real total. Public: the man
 |---|---|---|---|
 | `circuits/compliance.circom` | `amount ≤ threshold`, hidden | 44.4M instr | local ✓ |
 | `circuits/mandate.circom` | 8 payments obey mandate, hidden | 61.4M instr | local ✓ |
-| `circuits/mandate_sd.circom` | mandate + total encrypted to regulator (ElGamal) | **44.6M instr (11% of budget)** | **live on Stellar testnet ✓** |
+| `circuits/mandate_sd.circom` | mandate + total encrypted to regulator (ElGamal) | **44.6M instr (11% of budget)** | **live on Stellar MAINNET ✓** |
 
-- Testnet verifier: `CD5TQEJMZ6N6U5XFF66POD5EOMRZGRMMP5CSKKLZEUQRNZ64TM4UHUOA`
-- Live verify tx: [stellar.expert](https://stellar.expert/explorer/testnet/tx/c7cfaa3c04013629e2c351547c1fd6a71b35f5ffda3f8e80b71b047624a3ee0b)
+- **Mainnet verifier (live):** [`CBDS2YSLATINQVUDG5Y5HV4KQBEAVFDRPEINVEUTYSX3CZZQKBY5U3FE`](https://stellar.expert/explorer/public/contract/CBDS2YSLATINQVUDG5Y5HV4KQBEAVFDRPEINVEUTYSX3CZZQKBY5U3FE) — `verify(real proof) = true` (reproduce: `bash verify_mainnet.sh`).
+- Earlier testnet verifier: `CD5TQEJMZ6N6U5XFF66POD5EOMRZGRMMP5CSKKLZEUQRNZ64TM4UHUOA` ([verify tx](https://stellar.expert/explorer/testnet/tx/c7cfaa3c04013629e2c351547c1fd6a71b35f5ffda3f8e80b71b047624a3ee0b)).
+- BN254 host functions are native on mainnet since Protocol 25 (X-Ray), so this verify runs on-chain at the measured ~44.6M instructions.
 
 ## Engineering decisions (with evidence)
 
