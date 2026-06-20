@@ -26,3 +26,7 @@ build_attest/*/input.json
 build_attest/*/*.wtns
 /tmp/all_orders.json
 /tmp/all_merchants.json
+
+# KYC circuit private witnesses (birthYear, sanctionId, secrets)
+build_kyc/input*.json
+build_kyc/*.wtns
