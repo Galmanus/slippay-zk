@@ -35,6 +35,27 @@ Private inputs: the 8 amounts, the 8 recipients, the real total. Public: the man
 - Earlier testnet verifier: `CD5TQEJMZ6N6U5XFF66POD5EOMRZGRMMP5CSKKLZEUQRNZ64TM4UHUOA` ([verify tx](https://stellar.expert/explorer/testnet/tx/c7cfaa3c04013629e2c351547c1fd6a71b35f5ffda3f8e80b71b047624a3ee0b)).
 - BN254 host functions are native on mainnet since Protocol 25 (X-Ray), so this verify runs on-chain at the measured ~44.6M instructions.
 
+## Proof-of-KYC (Vector 2) — also live on mainnet
+
+A second circuit (`circuits/kyc.circom`) proves, with no PII revealed, that a user
+is a **registered, of-age, non-sanctioned** human — composing with the mandate proof
+into one selective-disclosure story (verified human + payment within mandate).
+
+| check | proves | |
+|---|---|---|
+| Merkle membership | credential is in the issuer's registered set | anonymous |
+| `currentYear − birthYear ≥ minAge` | of age | birthYear hidden |
+| `sanctionId ∉ public sanctions set` | non-sanctioned | id hidden |
+| `nullifierHash = Poseidon(nullifier)` | anti-reuse | |
+
+Verified end-to-end **on Stellar mainnet** against the same generic verifier
+([`CBDS2YSL…`](https://stellar.expert/explorer/public/contract/CBDS2YSLATINQVUDG5Y5HV4KQBEAVFDRPEINVEUTYSX3CZZQKBY5U3FE)),
+[tx `83ee1697…`](https://stellar.expert/explorer/public/tx/83ee1697486a24c3fd389b812f00c5693659cc3837f6fa653c42b62afc1751d6) → `verify = true`.
+Witness generation **rejects** a minor and a sanctioned id — the proof is load-bearing.
+In production a licensed partner (4P / Etherfuse) issues the credential; Slippay
+never stores the CPF, only the commitment. 6497 constraints, same BN254/Groth16/
+Poseidon stack as the mandate proof.
+
 ## Engineering decisions (with evidence)
 
 - **Groth16, not UltraHonk.** UltraHonk verify measured **396M instructions (99% of the budget)** — a dead end pre-Protocol-26. Groth16 lands at ~44M. The reason Protocol 26 shipped CAP-0080 (9 BN254 host functions) is precisely that UltraHonk was too expensive; this circuit reproduces that motivation independently and stays native via Circom today.
