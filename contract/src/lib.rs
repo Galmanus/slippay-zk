@@ -18,6 +18,9 @@ use soroban_sdk::{
     vec, BytesN, Env, Vec,
 };
 
+#[cfg(test)]
+mod test;
+
 #[contract]
 pub struct SlippayZkVerifier;
 
